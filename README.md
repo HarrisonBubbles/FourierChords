@@ -1,2 +1,2 @@
 # FourierChords
-Decomposing audio signals using the Fourier Transform to identify music chords
+Identifying musical chords by using the Fourier Transform
