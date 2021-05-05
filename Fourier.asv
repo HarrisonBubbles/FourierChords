@@ -1,22 +1,49 @@
 % read audio file
 directory = pwd;
-info = audioinfo(fullfile(directory, 'Sounds\CMajor.wav'))
+info = audioinfo(fullfile(directory, 'Sounds\CMajor.wav'));
 [y,Fs] = audioread(fullfile(directory, 'Sounds\CMajor.wav'));
 
-% get total samples from file
+% get total samples from file and round to the next
+% highest power of 2 (for better frequency resolution)
 L = 2^nextpow2(info.TotalSamples);
 
-ff = fft(y, L);
+Ts = 1/Fs; % sampling period
+dt = 0:Ts:info.Duration - Ts; % signal duration vector
+
+% compute Fourier transform of signal
+ff = fft(y, L); 
 fff = ff(1:L/2);
-freq = Fs*(0:(L/2)-1)/L;
 
-amp = abs(fff);
-plot(freq, amp)
-xlim([0, 500])
+freq = Fs*(0:(L/2)-1)/L; % calculate frequency
+amp = abs(fff); % get amplitude (real part of transform)
+namp = amp/max(amp); % normalize amplitude
 
-% dy=gradient(amp(:))./gradient(freq(:));
-% plot(freq,dy);
+% plot original signal
+subplot(2,1, 1);
+plot(dt,y);
+xlabel('Time (sec)');
+ylabel('Amplitude');
+title('
 
+% plot transformed signal
+subplot(2,1, 2);
+plot(freq, namp);
+xlim([0, 500]);
 
-% threshold 
+thresh = 0.15 % threshold 
 % error margin 
+
+% filter data for frequency peaks
+% (aka the "notes" we're looking for)
+filter = namp > thresh;
+peaks = findpeaks(namp(filter));
+
+% make a list of identified pitches from signal
+lop = [];
+for i = 1:length(peaks)
+    index = find(namp == peaks(i));
+    pitch = freq(index);
+    lop = [lop, pitch];
+end
+lop
+
