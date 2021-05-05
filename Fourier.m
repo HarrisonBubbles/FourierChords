@@ -1,7 +1,9 @@
 % read audio file
 directory = pwd;
-info = audioinfo(fullfile(directory, 'Sounds\CMajor.wav'));
-[y,Fs] = audioread(fullfile(directory, 'Sounds\CMajor.wav'));
+audio = input('Which file?');
+path = append('Sounds\', audio);
+info = audioinfo(fullfile(directory, path));
+[y,Fs] = audioread(fullfile(directory, path));
 
 % get total samples from file and round to the next
 % highest power of 2 (for better frequency resolution)
@@ -28,18 +30,19 @@ title('Original Signal');
 % plot transformed signal
 subplot(2,1, 2);
 plot(freq, namp);
-xlim([0, 500]);
+xlim([0, 1000]);
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
 title('Transformed Signal');
 
-thresh = 0.15; % threshold 
+thresh = 0.5; % threshold 
 % error margin 
 
 % filter data for frequency peaks
 % (aka the "notes" we're looking for)
-filter = namp > thresh;
-peaks = findpeaks(namp(filter));
+init_peaks = findpeaks(namp);
+filter = init_peaks > thresh;
+peaks = init_peaks(filter);
 
 % make a list of identified pitches from signal
 lop = [];
